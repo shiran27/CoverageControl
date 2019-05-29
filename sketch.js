@@ -261,7 +261,7 @@ function setup() {
 
     
     // adding initial agents
-    for (var i = 0; i < 1; i++){
+    for (var i = 0; i < 10; i++){
         addAgent();
     }
     ////particles[0] = new Particle(15,15);
