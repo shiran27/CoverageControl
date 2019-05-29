@@ -3190,8 +3190,8 @@ function Particle(x, y) {
                 this.isBoostingActivated = 3;//stop boosting anymore start waiting period
                 
                 if(displayPhysicalAgentsMode){
-                    consolePrint("Agent "+(this.id+1)+"'s initial boosting/normal session finished; No improvement; Iteration: "+this.boostingIterationNumber+"; Mobilizing Physical Agents...");
-                    driveAgentsToTargets();
+                    consolePrint("Agent "+(this.id+1)+"'s initial boosting/normal session finished; No improvement; Iteration: "+this.boostingIterationNumber+"; Not Mobilizing Physical Agents...");
+                    //driveAgentsToTargets();
 
                 }else{
                     consolePrint("Agent "+(this.id+1)+"'s initial boosting/normal session finished; No improvement; Iteration: "+this.boostingIterationNumber);
@@ -3238,8 +3238,8 @@ function Particle(x, y) {
 
                 this.isBoostingActivated = 9;//stop boosting anymore
                 if(displayPhysicalAgentsMode){
-                    consolePrint("Agent "+(this.id+1)+"'s boosting sequence finished; No improvement achieved from boosting; Iteration: "+this.boostingIterationNumber+"; Mobilizing Physical Agents...");
-                    driveAgentsToTargets();
+                    consolePrint("Agent "+(this.id+1)+"'s boosting sequence finished; No improvement achieved from boosting; Iteration: "+this.boostingIterationNumber+"; No Mobilizing Physical Agents...");
+                    ////driveAgentsToTargets();
                 }else if(this.neighborsOld.length!==0){
                     consolePrint("Agent "+(this.id+1)+"'s boosting sequence finished; No improvement achieved from boosting; Iteration: "+this.boostingIterationNumber+"; Final Objective : "+round(this.getLocalCombinedCoverageLevel()*100)/100);
                 }

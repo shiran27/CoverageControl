@@ -261,7 +261,7 @@ function setup() {
 
     
     // adding initial agents
-    for (var i = 0; i < 10; i++){
+    for (var i = 0; i < 1; i++){
         addAgent();
     }
     ////particles[0] = new Particle(15,15);
@@ -1783,8 +1783,16 @@ function draw() {
     //moving average (of coverage cost increment) update
     // counting with physical agents function needs this:
     movingAverage = movingAverage-(objectiveValueArray[objectiveValueArray.length-movingAverageWindowSize]-(objectiveValueNew-objectiveValue))/movingAverageWindowSize;
-    
+    // end for counting with physical agents
+
     iterationNumber++;
+
+    // for counting with physical agents
+    objectiveValueArray.splice(0,1);
+    objectiveValueArray.push(objectiveValueNew-objectiveValue);
+    iterationNumberArray.splice(0,1);
+    iterationNumberArray.push(iterationNumber);
+    // end for counting with physical agents
 
 
 
@@ -1805,7 +1813,13 @@ function draw() {
                 executionTime = Math.round(millis()-executionTime)/1000;
 
                 // end pause
-                consolePrint("Global optimality: ~"+objectiveValue+" reached after "+executionTime+" s");
+                if(displayPhysicalAgentsMode){
+                    consolePrint("Global optimality: ~"+objectiveValue+" reached after "+executionTime+" s; Mobilizing Physical Agents...");
+                    driveAgentsToTargets();
+                }else{
+                    consolePrint("Global optimality: ~"+objectiveValue+" reached after "+executionTime+" s");
+                }
+                
             }
             //////testAgentLocalMinimaReached();
         }
@@ -1849,10 +1863,11 @@ function draw() {
 
     
     //counting
-    if(isSimulationMode==1 && displayPhysicalAgentsMode && boostingMethod==0){
-	    countingWithPhysicalAgents();
+    if(addObstacleMode==0 && !isDebugMode && isSimulationMode && !mouseIsPressed && displayPhysicalAgentsMode && boostingMethod==0){
+	    countingWithPhysicalAgents(); // no boosting is used
     }else if(isSimulationMode==1 && boostingMethod>0){
     	//need to do something here....
+        // it is done! under boosting!
     	//print(agentPositions.length)
     }
     

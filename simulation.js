@@ -391,10 +391,11 @@ function formSimplexTableu(){
 
 
 function countingWithPhysicalAgents(){
-	if(Math.abs(movingAverage)<15){
+	print("came here! Moving avg:"+Math.abs(movingAverage) )
+	if(Math.abs(movingAverage)<5){
 		countTillStaticMode++;
-		if(countTillStaticMode>50){
-			countTillStaticMode=51;
+		if(countTillStaticMode>250){
+			countTillStaticMode=251;
 			print("Static Reached");
 			if(staticMode==0){
 				print("applying a purturbation");
@@ -1021,7 +1022,7 @@ function testAgentLocalMinimaReached(){// decentralized boosting !!!! old code -
 				
 				if(displayPhysicalAgentsMode){
 					consolePrint("Agent "+(i+1)+"'s initial boosting/normal session finished; No improvement; Iteration: "+particleShadows[i].boostingIterationNumber+"; Mobilizing Physical Agents...");
-					driveAgentsToTargets();
+					//driveAgentsToTargets();
 
 				}else{
 					consolePrint("Agent "+(i+1)+"'s initial boosting/normal session finished; No improvement; Iteration: "+particleShadows[i].boostingIterationNumber);
@@ -1060,7 +1061,7 @@ function testAgentLocalMinimaReached(){// decentralized boosting !!!! old code -
 				particleShadows[i].isBoostingActivated = 9;//stop boosting anymore
 				if(displayPhysicalAgentsMode){
 					consolePrint("Agent "+(i+1)+"'s boosting sequence finished; No improvement achieved from boosting; Iteration: "+particleShadows[i].boostingIterationNumber+"; Mobilizing Physical Agents...");
-					driveAgentsToTargets();
+					////driveAgentsToTargets();
 
 				}else{
 					
