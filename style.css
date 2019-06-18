@@ -126,6 +126,12 @@ body {
 
 }
 
+
+.border-right{
+    border-right-style: solid;
+    border-right-color: grey;
+}
+
 #obstacleCoordinatesDisplay{
     margin-bottom: 20px;
 

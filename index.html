@@ -19,6 +19,7 @@
 
 	<script src="libraries/math.js" type="text/javascript"></script>
 	<script src="libraries/fontawesome.js" type="text/javascript"></script>
+	<script src="libraries/seedrandom.js" type="text/javascript"></script>
 	
 
 
@@ -182,7 +183,7 @@
 		            	
 		            	<div class="input-group">
 		            		<div class="form-check">
-		            			<h4>Add Physical Agents: <input class="form-check-input" type="checkbox" value="" checked id="displayPhysicalAgents"></h4> <!-- removed class : checked -->
+		            			<h4>Add Physical Agents: <input class="form-check-input" type="checkbox" value="" id="displayPhysicalAgents"></h4> <!-- removed class : checked -->
 		            		</div>		
 						</div> 
 		            </div>
@@ -266,7 +267,7 @@
 		<div class="row">
 			<div id="StepSizeMenu" class="form-group form-horizontal">
 
-				<div class="col col-lg-3 col-md-6">
+				<div class="col col-lg-3 col-md-6 border-right">
 					<h4>Decentralized Boosting Method:</h4>
 					<select class="form-control" id="decentralizedBoostingMethod" onchange="decentralizedBoostingMethodDropdownEvent()">
 						<option value="0">Centralized</option>
@@ -274,7 +275,7 @@
 	      			</select>					
       			</div>
 
-      			<div class="col col-lg-3 col-md-6">
+      			<div class="col col-lg-3 col-md-6 border-right">
       				<h4>Variable Steps: <input class="form-check-input" type="checkbox" checked value="" id="variableStepSizeCB" onclick="variableStepSizeModeChanged()">; (-)ve Steps <input class="form-check-input" type="checkbox" value="" checked id="negativeStepSizeCB">; 
       				</h4>
     					
@@ -284,7 +285,7 @@
       			</div>
 
 
-            	<div class="col col-lg-2 col-md-2">
+            	<div class="col col-lg-2 col-md-2 border-right">
             		
 	          		<h4>Auto Tune K_1 <input class="form-check-input" type="checkbox" value="" checked id="autoTuneLipschitzMode" onclick="autoTuneLipschitzModeChanged()">;</h4>
                 	
@@ -317,7 +318,7 @@
 		<div class="row">
 			<div id="obstacleMenu" class="form-group form-horizontal">
 
-				<div class="col col-lg-3 col-md-6">
+				<div class="col col-lg-3 col-md-6 border-right">
                 	<h4>Load Obstacle Setup:</h4>
 	                <select class="form-control col col-lg-2" id="obstacleSetupDropdown" onchange="obstacleSetupDropdownEvent()">
 	                	<option value="0">Blank</option>
@@ -329,14 +330,14 @@
       			</div>
 
 
-				<div class="col col-lg-3 col-md-6">
+				<div class="col col-lg-3 col-md-6 border-right">
                 	<h4>Select Obstacle:</h4>
 	                <select class="form-control col col-lg-2" id="obstacleDropdown" onchange="obstacleDropdownEvent()">
 	      			</select>
       			</div>
 
 
-      			<div class="col col-lg-3 col-md-6">
+      			<div class="col col-lg-3 col-md-6 border-right">
       				<h4>Add New Obstacle:</h4> 
 
       				<div class="col col-lg-6 col-md-6 col-sm-6">
@@ -355,7 +356,7 @@
 
 
       			<div class="col col-lg-3 col-md-6" id="obstacleCoordinatesDisplayDiv">
-					<h4>Obstacle Coordinates:</h4> <input type="text" class="form-control" id="obstacleCoordinatesDisplay" onchange="obstacleTextInput()">
+					<h4>Obstacle Coordinates (Editable):</h4> <input type="text" class="form-control" id="obstacleCoordinatesDisplay" onchange="obstacleTextInput()">
                 </div>
 
 
@@ -373,14 +374,14 @@
 			<div id="submodularityMenu" class="form-group form-horizontal">
 
       			
-	    		<div class="col col-lg-2 col-md-3 col-sm-3">
+	    		<div class="col col-lg-2 col-md-3 col-sm-3 border-right">
 	    			<div id="trajectoryButtons"  class="input-group">
 						<h4>Greedy Methods, n:</h4>
 	            			<input type="text" class="form-control" id="numOfCandidatesSubmodularity" value="200">
 		            </div>
 				</div>
 
-				<div class="col col-lg-2 col-md-3 col-sm-3">
+				<div class="col col-lg-2 col-md-3 col-sm-3 border-right">
 	    			<div id="trajectoryButtons"  class="input-group">
 						<div class="input-group-btn">
 	            			<h4>Discretized Points:</h4>
@@ -392,13 +393,14 @@
 		            </div>
 				</div>
 
-				<div class="col col-lg-3 col-md-3 col-sm-3">
+				<div class="col col-lg-3 col-md-3 col-sm-3 border-right">
 	    			<div id="trajectoryButtons"  class="input-group">
 						<div class="input-group-btn">
 							<h4>Centralized Greedy</h4>
-	    					<button id="solveGreedyButton" class="btn btn-success" type="button" onclick="solveCentralizedGreedyBtnFcn();">Gen. G.</button>
+	    					<button id="solveGreedyButton" class="btn btn-success" type="button" onclick="solveCentralizedGreedyBtnFcn();">Gen.</button>
+	    					<button id="solveGreedyButton" class="btn btn-warning" type="button" onclick="solveCentralizedZigZagGreedyBtnFcn();">Zig.</button>
 	    					<button id="solveGreedyButton" class="btn btn-danger" type="button" onclick="solveCentralizedGreedyContinuousBtnFcn();"><i class="fa fa-play" aria-hidden="true"></i></button>
-	    					<button id="deployAgentsButton" class="btn btn-primary" type="button" onclick="solveCentralizedStochasticGreedyBtnFcn();">Stoch. G.(&epsilon;)</button>
+	    					<button id="deployAgentsButton" class="btn btn-primary" type="button" onclick="solveCentralizedStochasticGreedyBtnFcn();">Stoch.(&epsilon;)</button>
   						</div>
   						<h4>&epsilon;</h4>
   						<input type="text" class="form-control" id="epsilonStochasticGreedy" value="0.27">
@@ -406,7 +408,7 @@
 				</div>
 
 
-				<div class="col col-lg-3 col-md-3 col-sm-3">
+				<div class="col col-lg-3 col-md-3 col-sm-3 border-right">
 	    			<div id="trajectoryButtons"  class="input-group">
 						<div class="input-group-btn">
 							<h4>Distributed Greedy</h4>
@@ -441,7 +443,7 @@
             	
             <div id="DataMenu" class="form-group form-horizontal">
 
-				<div class="col col-lg-6 col-md-6">
+				<div class="col col-lg-6 col-md-6 border-right">
                 	<h4>Select Data:</h4>
 	                <select class="form-control col col-lg-2" id="selectDataToSaveDropdown" onchange="selectDataToSaveDropdownEvent()">
 	                	<option selected value="0">Console</option>
@@ -454,14 +456,14 @@
 
       			<div class="col col-lg-6 col-md-6">
 
-      				<div class="col col-lg-3 col-md-4 col-sm-6">
+      				<div class="col col-lg-3 col-md-4 col-sm-6 border-right">
       					<h4>Save Data: <input class="form-check-input" type="checkbox" value="" id="saveDataEnabled"> </h4> 
 	      				<button class="btn btn-success" type="button" onclick="saveTextAsFile();">
 		    						<i class="fa fa-play" aria-hidden="true"> Save Data</i>
 		    			</button>
 	    			</div>
 
-	    			<div class="col col-lg-3 col-md-4 col-sm-6">
+	    			<div class="col col-lg-3 col-md-4 col-sm-6 border-right">
 	    				<h4>Plot Data: <input class="form-check-input" type="checkbox" value="" id="plotDataEnabled"> </h4> 
 	    				<a href="plot.html" target="_blank">
 		      				<button class="btn btn-danger" type="button" onclick="plotButtonClicked();">
@@ -496,7 +498,7 @@
 			<div id="PSOMenu" class="form-group form-horizontal">
 
 
-      			<div class="col col-lg-6 col-md-6 col-sm-6">
+      			<div class="col col-lg-6 col-md-6 col-sm-6 border-right">
 					<div id="trajectoryButtons" class="input-group">
 						<h4>Particle Swarm Optimization: </h4>
 						<div class="input-group-btn">

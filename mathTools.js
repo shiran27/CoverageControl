@@ -1890,7 +1890,7 @@ function solveCentralizedGreedyBtnFcn(){
 function iterationOfCentralizedGreedy(){
 	
 	var numberOfCandidates = submodularityCandidates.length;
-	var chosenCandidateIndexes = savedParameters[0];
+	var chosenCandidateIndexes = [...savedParameters[0]];
 	
 	var costArray = [];
 	var greedyCurvatureArray = []; //1-H(s_j|S^i)/H(s_j|\Phi)
@@ -1926,13 +1926,132 @@ function iterationOfCentralizedGreedy(){
 
 	addAgentToPoint(solutionPoint.x,solutionPoint.y);
 	chosenCandidateIndexes.push(chosenCandidateIndex);
-	savedParameters[0] = chosenCandidateIndexes;
+	savedParameters[0] = [...chosenCandidateIndexes];
 	savedParameters[1] = savedParameters[1]+1;
 	savedParameters[2] = savedParameters[2]+computations;
 	savedParameters[3].push(greedyCurvatureArray.reduce(function(a, b){return Math.max(a, b);}));
 		
+
 }
 // end - Centralized general greedy Method
+
+
+
+
+
+
+
+
+// Centralized zig-zag greedy Method
+function solveCentralizedZigZagGreedyBtnFcn(){
+	
+	consolePrint("Solving Using Centralized - Zig-Zag Greedy Algorithm: Started. Please wait...");
+	// save the existing particle shadows
+	savedParticles = particleShadows;
+
+	// remove all the agents
+	particleShadows = [];particles = [];
+
+	// chosen candidate indexes
+	savedParameters[0] = [];
+	savedParameters[1] = 0; // length of current particle shadows
+	savedParameters[2] = 0; // number of computations did (to check O(nN))
+	savedParameters[3] = []; //[max_i(1-H/H); i = iteration number] - for greedy curvature calculation
+	// need to ad one agent by one agent,
+	// each agent should take the best candidate position ( to maximize H(s) - global ) remaining
+	submodularityMode = 3.25; 
+	
+}
+
+function iterationOfCentralizedZigZagGreedy(){
+	
+	var numberOfCandidates = submodularityCandidates.length;
+	var chosenCandidateIndexes = [...savedParameters[0]];
+	
+	var costArray = [];
+	var greedyCurvatureArray = []; //1-H(s_j|S^i)/H(s_j|\Phi)
+	var H_jValueWRTPhi = 0;
+	var computations = 0;
+	for(var j = 0; j<numberOfCandidates; j++){// scanning candidates
+		
+		if(chosenCandidateIndexes.includes(j)){// not choses previously
+			costArray[j] = 0; // will disencourage chosing this point
+			greedyCurvatureArray[j] = 0;
+		}else{
+			addAgentToPoint(submodularityCandidates[j].x,submodularityCandidates[j].y);
+			
+			// the following line  can be improved by considering only the cost increment of adding an agent 
+			//costArray[j] = Math.round(globalObjective()*1000)/1000;
+			// improved version: cost increment is only calculated using local info.
+			costArray[j] = Math.round(particleShadows[particleShadows.length-1].localObjectiveFunction()*1000)/1000;
+			H_jValueWRTPhi = Math.round(particleShadows[particleShadows.length-1].localObjectiveFunctionWRTNeighbors([])*1000)/1000;
+			greedyCurvatureArray[j] = 1-(costArray[j]/H_jValueWRTPhi);
+			if(isNaN(greedyCurvatureArray[j])){greedyCurvatureArray[j]=0;}
+			removeAgent(); // remove last element
+			computations++;
+		} 
+
+	}
+	
+	////var chosenCandidateIndex = costArray.indexOf(Math.max.apply(Math,costArray));
+	// same as follows
+	var chosenCandidateIndex = costArray.indexOf(costArray.reduce(function(a, b){return Math.max(a, b);}));
+	var solutionPoint = submodularityCandidates[chosenCandidateIndex];
+
+	//print(chosenCandidateIndex,solutionPoint);
+
+	//temp for zigzag
+	////var h1 = Math.round(globalObjective());
+
+	addAgentToPoint(solutionPoint.x,solutionPoint.y);
+	chosenCandidateIndexes.push(chosenCandidateIndex);
+	savedParameters[0] = [...chosenCandidateIndexes];
+	savedParameters[1] = savedParameters[1]+1;
+	savedParameters[2] = savedParameters[2]+computations;
+	savedParameters[3].push(greedyCurvatureArray.reduce(function(a, b){return Math.max(a, b);}));
+		
+	////var h2 = Math.round(globalObjective());
+	var newAgentsContribution = costArray[chosenCandidateIndex]; // roughly equalto h2-h1 
+
+	//test begin for zig-zag greedy
+    var costArray2 = [];
+    for(var i = 0; i<particleShadows.length; i++){
+    	var contribution = Math.round(particleShadows[i].localObjectiveFunction()*1000)/1000;;
+        costArray2[i] = newAgentsContribution - contribution;
+        if(costArray2[i]<=0){ 
+        	costArray2[i] = 1000000;
+        }
+    }
+    
+    //print("CostArray:"+costArray);
+    var worstContributor = costArray2.indexOf(costArray2.reduce(function(a, b){return Math.min(a, b);}));
+    var worstContribution =  newAgentsContribution-costArray2[worstContributor];
+    
+    // removing
+    consolePrint("Agent "+savedParameters[1]+" added");
+    ////var h3 = h2 - costArray2[worstContributor];
+    print("Gain due to add: "+newAgentsContribution+"; best min loss "+worstContribution);
+    if(worstContribution<newAgentsContribution && (worstContributor+1)<savedParameters[1]){
+        
+        removeAgentWithIndex(worstContributor);
+        savedParameters[0].splice(worstContributor,1);
+        savedParameters[1] = savedParameters[1] - 1;
+        savedParameters[3].splice(worstContributor,1);
+        //250011 , 249247 : N 25, 200 points Maze :zigzag,gen
+        //249714 , 249367 : N 25, 500 points Gen :zigzag,gen
+        //315346 , 314140 : N 25, 500 points Blank :zigzag,gen
+
+        ////var h3 = Math.round(globalObjective()); 
+        consolePrint("Worst contributor agent "+(worstContributor+1)+" removed. Gain: "+(newAgentsContribution-worstContribution));
+    }
+    // end test 
+
+
+}
+// end - Centralized zig-zag greedy Method
+
+
+
 
 
 

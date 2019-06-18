@@ -289,6 +289,8 @@ function setup() {
     //////clearInterval(updateLocalLipschitzConstantsInterval);
     updateLocalLipschitzConstantsInterval = 0;
 
+    Math.seedrandom('27');
+
     consolePrint("Interface Loading Finished.");
     
     
@@ -1002,8 +1004,30 @@ function removeFirstAgent(){
 
     particles.shift();
     particleShadows.shift();
+
+    if(shadowsFollowingMode==1){
+        shadowsFollowingMode=0;
+        clearInterval(shadowsFollowingInterval);
+        resetParticleHistory();
+    }
     
 }
+
+
+function removeAgentWithIndex(agentIndex){
+
+    particles.splice(agentIndex,1);
+    particleShadows.splice(agentIndex,1);
+    //trajectoryFollowButton.style("background-color", "grey");
+    if(shadowsFollowingMode==1){
+        shadowsFollowingMode=0;
+        clearInterval(shadowsFollowingInterval);
+        resetParticleHistory();
+    }
+    //consolePrint("Agent Removed.");
+    
+}
+
 
 
 //This function moves the particles as we drag them
@@ -1454,7 +1478,7 @@ function draw() {
         printPointArrayP2(submodularityCandidates,color(100,0,100),2);    
         if(savedParticles.length>savedParameters[1]){// need to add an agent
             iterationOfCentralizedGreedy();// add the most benificial agent
-            consolePrint("Agent "+savedParameters[1]+" added, Global cost:"+Math.round(globalObjective()));
+            consolePrint("Agent "+savedParameters[1]+" added, Global cost:"+Math.round(globalObjective()));            
         }else{
             submodularityMode = 1;
             var approxFactor = 1-math.pow(1-(1/savedParticles.length),savedParticles.length);//1-(1-1/N)^N)
@@ -1466,7 +1490,25 @@ function draw() {
         }
         printPointArrayP2(submodularityCandidates,color(100,0,100),2);
         sleepFor(200);// for better display
- 
+
+    }else if(submodularityMode==3.25){//simulate centralized - zig-zag greedy
+        document.getElementById("displayCoverageDensity").checked = true;
+        printPointArrayP2(submodularityCandidates,color(100,0,100),2);    
+        if(savedParticles.length>savedParameters[1]){// need to add an agent
+            iterationOfCentralizedZigZagGreedy();// add the most benificial agent
+           //////consolePrint("Agent "+savedParameters[1]+" added, Global cost:"+Math.round(globalObjective()));            
+        }else{
+            submodularityMode = 1;
+            var approxFactor = 1-math.pow(1-(1/savedParticles.length),savedParticles.length);//1-(1-1/N)^N)
+            if(approxFactor<0){approxFactor=0;}
+            var approxFactor2 = savedParameters[3].reduce(function(a, b){return Math.max(a, b);});
+            approxFactor2 = (1-approxFactor2)*(1-(1/savedParticles.length));
+            consolePrint("Solving Using Centralized - Zig-Zag Greedy Algorithm: Finished after "+savedParameters[2]+" computations.");
+            consolePrint("Approximation factors : Theoretical :- "+approxFactor+", Greedy Curvature Based :- "+approxFactor2+".");
+        }
+        printPointArrayP2(submodularityCandidates,color(100,0,100),2);
+        sleepFor(200);// for better display
+    
     }else if(submodularityMode==3.5){//simulate centralized - general greedy - iterative
         document.getElementById("displayCoverageDensity").checked = true;
         printPointArrayP2(submodularityCandidates,color(100,0,100),2);    
