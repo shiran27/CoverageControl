@@ -278,8 +278,29 @@ function obstacleSetupLoad(obstacleSetupIndex){
     else if(obstacleSetupIndex==4){// narrow
         var obstacle1 = [100,50,100,550,150,550,150,50];    
         loadDefaultObstacle(obstacle1);
-    }
+    }else if(obstacleSetupIndex==5){// block 
+        // var obstacle1 = [120,120,120,192,192,192,192,120];
+        // loadDefaultObstacle(obstacle1);  
+        var obstacle1 = [264,120,264,192,336,192,336,120];
+        loadDefaultObstacle(obstacle1);  
+        var obstacle1 = [408,120,408,192,480,192,480,120];
+        loadDefaultObstacle(obstacle1);
 
+        var obstacle1 = [120,264,120,336,192,336,192,264];
+        loadDefaultObstacle(obstacle1);  
+        var obstacle1 = [264,264,264,336,336,336,336,264];
+        loadDefaultObstacle(obstacle1);  
+        // var obstacle1 = [408,264,408,336,480,336,480,264];
+        // loadDefaultObstacle(obstacle1);  
+
+        var obstacle1 = [120,408,120,480,192,480,192,408];
+        loadDefaultObstacle(obstacle1);  
+        // var obstacle1 = [264,408,264,480,336,480,336,408];
+        // loadDefaultObstacle(obstacle1);  
+        var obstacle1 = [408,408,408,480,480,480,480,408];
+        loadDefaultObstacle(obstacle1);    
+
+    }
     for(var i = 0; i < obstacles.length; i++){
         obstacles[i].calculateReflexVertices();
     }

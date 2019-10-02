@@ -1650,6 +1650,8 @@ function readjustCandidates2Start(){
 // Calculate approximation factors
 function calculateApproxFactorsBtnFcn(){
 	
+
+
 	//// calculating the total curvature
 	// save the existing particle shadows
 	savedParticles = particleShadows;
@@ -1681,7 +1683,7 @@ function calculateApproxFactorsBtnFcn(){
 	var indexOfMaxValue = valueArray.reduce((iMax, x, i, arr) => x > arr[iMax] ? i : iMax, 0);
 	markedSubmodularityCandidates = [];
 	markedSubmodularityCandidates.push(submodularityCandidates[indexOfMaxValue]);
-	print('Partial Curvature: '+c+'; Max index: '+indexOfMaxValue+';');
+	//print('Partial Curvature: '+c+'; Max index: '+indexOfMaxValue+';');
 	var T_cN = (1/c)*(1-Math.pow(1-(c/N),N));
 	
 
@@ -1789,6 +1791,8 @@ function calculateApproxFactorsBtnFcn(){
 	// end partial curvature calculation
 
 
+
+
 	//// greedy curvature based:
 	particleShadows = [];particles = [];
 
@@ -1846,14 +1850,131 @@ function calculateApproxFactorsBtnFcn(){
 
 
 
+
+
+	//// Greedy data based approximation bound
+	particleShadows = [];particles = [];
+
+	// chosen candidate indexes
+	savedParameters[0] = [];
+	savedParameters[1] = 0; // length of current particle shadows
+	savedParameters[2] = 0; // dummy for now
+
+	var numberOfCandidates = submodularityCandidates.length;
+	var HfG = 0;
+	var HfG2 = 0;
+	var alpha_d1 = 0;
+	var alpha_dh = 0;
+	var alpha_d2 = 0;
+	for(var i = 0; i<(2*N+1); i++){
+		
+		var chosenCandidateIndexes = savedParameters[0];
+		var costArray = [];
+		for(var j = 0; j<numberOfCandidates; j++){// scanning candidates
+			
+			if(chosenCandidateIndexes.includes(j)){// not choses previously
+				costArray[j] = 0; // will disencourage chosing this point
+			}else{
+				addAgentToPoint(submodularityCandidates[j].x,submodularityCandidates[j].y);
+				costArray[j] = Math.round(particleShadows[particleShadows.length-1].localObjectiveFunction()*1000)/1000;
+				removeAgent(); // remove last element
+			} 
+
+		}
+
+
+		// data depemdent bound - Part 1
+		if(i==N){
+			print("length:"+particleShadows.length)
+			var tempCostArray = [...costArray];
+			tempCostArray.sort(function(a, b){return b - a});
+			//print(tempCostArray);
+			alpha_d1 = 0;
+			for(var j = 0; j<N; j++){
+				print(tempCostArray[j]);
+				alpha_d1 = alpha_d1 + tempCostArray[j];
+			}
+			HfG = globalObjective();
+			print("HfG: "+HfG);
+			print("alpha_d1: "+alpha_d1+", beta_d1: "+(1/(1+(alpha_d1/HfG))));
+		}else if(i==2*N){
+			print("length:"+particleShadows.length)
+			var tempCostArray = [...costArray];
+			tempCostArray.sort(function(a, b){return b - a});
+			//print(tempCostArray);
+			alpha_dh = 0;
+			for(var j = 0; j<N; j++){
+				print(tempCostArray[j]);
+				alpha_dh = alpha_dh + tempCostArray[j];
+			}
+			HfG2 = globalObjective();
+			print("HfG2: "+HfG2);
+			
+			print("alpha_dh: "+alpha_dh);
+			var beta_d1h = (1/(1+(alpha_dh/(HfG2-HfG))));
+			print("beta_d1h: "+beta_d1h);
+			var beta_cN = Th_N;
+			print("beta_cN: "+beta_cN);
+			var beta_h = 0;
+			if(beta_d1h>=beta_cN){
+				print("Yeah!!!");
+				beta_h = beta_d1h;
+			}else{
+				beta_h = beta_cN;
+			}
+			alpha_d2 = (HfG2-HfG)/beta_h;
+			print("alpha_d2: "+alpha_d2+", beta_d2: "+(1/(1+(alpha_d2/HfG))));
+
+
+		}
+		// data dependent bound
+
+
+
+		var chosenCandidateIndex = costArray.indexOf(costArray.reduce(function(a, b){return Math.max(a, b);}));
+		var solutionPoint = submodularityCandidates[chosenCandidateIndex];
+
+		addAgentToPoint(solutionPoint.x,solutionPoint.y);
+		chosenCandidateIndexes.push(chosenCandidateIndex);
+		savedParameters[0] = chosenCandidateIndexes;
+		savedParameters[1] = savedParameters[1]+1;
+		
+		
+	}
+
+	// print("Global best");
+	// print(savedParameters[3].indexOf(savedParameters[3].reduce(function(a, b){return Math.max(a, b);})))
+	
+	var alpha_d = 0;
+	if(alpha_d1<alpha_d2){
+		alpha_d = alpha_d1;
+	}else{
+		alpha_d = alpha_d2;
+	}
+	
+	var D_cN = (1/(1+(alpha_d/HfG)));
+	print("final alpha_d: "+alpha_d+", final bound: "+D_cN);
+
+
+
+
+
+
+	//// End -Greedy data based
+
+
+
+
 	Th_N = Math.round(10000000*Th_N)/10000000;
 	T_cN = Math.round(10000000*T_cN)/10000000;
 	E_cN = Math.round(10000000*E_cN)/10000000;
 	P_cN = Math.round(10000000*P_cN)/10000000;
 	G_cN = Math.round(10000000*G_cN)/10000000;
+	D_cN = Math.round(10000000*D_cN)/10000000;
 	
 	consolePrint("Approximation Factors calculated for this Mission Space configuration with N = "+N+", R = "+senRange+", and d = "+sensingDecayFactor+" are as follows:");
-	consolePrint("Theoretical:- "+Th_N+", Total Cur.:- "+T_cN+", Elemental Cur.:- "+E_cN+", Partial Cur.:- "+P_cN+", Greedy Cur.:- "+G_cN+".");
+	consolePrint("Theoretical:- "+Th_N+", Total Cur.:- "+T_cN+", Elemental Cur.:- "+E_cN+".");
+	consolePrint("Partial Cur.:- "+P_cN+", Greedy Cur.:- "+G_cN+", Extended greedy based.:- "+D_cN+".");
 	
 
 
@@ -1919,6 +2040,25 @@ function iterationOfCentralizedGreedy(){
 	
 	////var chosenCandidateIndex = costArray.indexOf(Math.max.apply(Math,costArray));
 	// same as follows
+
+
+	
+	// data depemdent bound
+	var tempCostArray = [...costArray];
+	tempCostArray.sort(function(a, b){return b - a});
+	print(tempCostArray);
+	var sumVal = 0;
+	for(var j = 0; j<particleShadows.length; j++){
+		print(tempCostArray[j]);
+		sumVal = sumVal + tempCostArray[j];
+	}
+	var HVal = globalObjective();
+	print("H: "+HVal);
+	print("Sum: "+sumVal+", bound: "+(1/(1+(sumVal/HVal))));
+	// data dependent bound
+
+
+
 	var chosenCandidateIndex = costArray.indexOf(costArray.reduce(function(a, b){return Math.max(a, b);}));
 	var solutionPoint = submodularityCandidates[chosenCandidateIndex];
 
