@@ -2008,7 +2008,7 @@ function calculateApproxFactorsBtnFcn(){
 	
 	consolePrint("Approximation Factors calculated for this Mission Space configuration with N = "+N+", R = "+senRange+", and d = "+sensingDecayFactor+" are as follows:");
 	consolePrint("Theoretical:- "+Th_N+", Total Cur.:- "+T_cN+", Elemental Cur.:- "+E_cN+".");
-	consolePrint("Partial Cur.:- "+P_cN+", Greedy Cur.:- "+G_cN+", Ext. greedy Cur.:- "+D_cN+", Submod. Bound:- "+F_cN+".");
+	consolePrint("Partial Cur.:- "+P_cN+", Greedy Cur.:- "+G_cN+", Ext. greedy Cur.:- "+D_cN+", Submod. Based:- "+F_cN+".");
 	
 
 

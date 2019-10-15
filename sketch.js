@@ -1487,7 +1487,7 @@ function draw() {
             approxFactor2 = (1-approxFactor2)*(1-(1/savedParticles.length));
             var approxFactor3 = globalObjective()/savedParameters[4];
             consolePrint("Solving Using Centralized - General Greedy Algorithm: Finished after "+savedParameters[2]+" computations.");
-            consolePrint("Performance Bounds : Theo. :- "+approxFactor.toFixed(7)+", Greedy Curv. :- "+approxFactor2.toFixed(7)+", submod. bound :- "+approxFactor3.toFixed(7)+".");
+            consolePrint("Performance Bounds : Theo. :- "+approxFactor.toFixed(7)+", Greedy Curv. :- "+approxFactor2.toFixed(7)+", Submod. Based :- "+approxFactor3.toFixed(7)+".");
         }
         printPointArrayP2(submodularityCandidates,color(100,0,100),2);
         sleepFor(200);// for better display
