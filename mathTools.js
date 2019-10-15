@@ -1683,7 +1683,7 @@ function calculateApproxFactorsBtnFcn(){
 	var indexOfMaxValue = valueArray.reduce((iMax, x, i, arr) => x > arr[iMax] ? i : iMax, 0);
 	markedSubmodularityCandidates = [];
 	markedSubmodularityCandidates.push(submodularityCandidates[indexOfMaxValue]);
-	//print('Partial Curvature: '+c+'; Max index: '+indexOfMaxValue+';');
+	print('Total Curvature: '+c+'; Max index: '+indexOfMaxValue+';');
 	var T_cN = (1/c)*(1-Math.pow(1-(c/N),N));
 	
 
@@ -1786,6 +1786,7 @@ function calculateApproxFactorsBtnFcn(){
 		addAgentToPoint(solutionPoint.x,solutionPoint.y);
 		chosenCandidateIndexes.push(chosenCandidateIndex);
 	}
+	print("Partial local obj: "+particleShadows[0].localObjectiveFunction())
 	var b_H = 1 - particleShadows[0].localObjectiveFunction()/particleShadows[0].localObjectiveFunctionWRTNeighbors([]);
 	var P_cN = (1/b_H)*(1-Math.pow(1-(b_H/N),N));
 	// end partial curvature calculation
@@ -1866,6 +1867,9 @@ function calculateApproxFactorsBtnFcn(){
 	var alpha_d1 = 0;
 	var alpha_dh = 0;
 	var alpha_d2 = 0;
+
+	var alpha_s = 0;
+
 	for(var i = 0; i<(2*N+1); i++){
 		
 		var chosenCandidateIndexes = savedParameters[0];
@@ -1883,6 +1887,21 @@ function calculateApproxFactorsBtnFcn(){
 		}
 
 
+		// submodularity bound
+		if(i==0){
+			var costAt0Array = [...costArray];
+			print("Cost at zero loaded! i = "+i);
+			costAt0Array.sort(function(a,b){return b-a});
+			alpha_s = 0;
+			for(var j = 0; j<N; j++){
+				print(costAt0Array[j]);
+				alpha_s = alpha_s + costAt0Array[j]; // summing highest costs
+			}
+		}
+		// submodularity bound - end
+
+
+
 		// data depemdent bound - Part 1
 		if(i==N){
 			print("length:"+particleShadows.length)
@@ -1897,6 +1916,13 @@ function calculateApproxFactorsBtnFcn(){
 			HfG = globalObjective();
 			print("HfG: "+HfG);
 			print("alpha_d1: "+alpha_d1+", beta_d1: "+(1/(1+(alpha_d1/HfG))));
+
+
+			// submodularity bound
+			print("alpha_s: "+alpha_s+"; bound: "+HfG/alpha_s);
+			// submodularity bound - end
+
+
 		}else if(i==2*N){
 			print("length:"+particleShadows.length)
 			var tempCostArray = [...costArray];
@@ -1924,6 +1950,12 @@ function calculateApproxFactorsBtnFcn(){
 			}
 			alpha_d2 = (HfG2-HfG)/beta_h;
 			print("alpha_d2: "+alpha_d2+", beta_d2: "+(1/(1+(alpha_d2/HfG))));
+
+
+			var tempBound1 = (1/(1+(alpha_d1/HfG)));
+			var tempBound2 = (1/(1+(((HfG2-HfG)/beta_cN)/HfG)));
+			var tempBound3 = (1/(1+(((HfG2-HfG)/beta_d1h)/HfG)));
+			print("Bounds: "+tempBound1+","+tempBound2+","+tempBound3);
 
 
 		}
@@ -1955,8 +1987,8 @@ function calculateApproxFactorsBtnFcn(){
 	var D_cN = (1/(1+(alpha_d/HfG)));
 	print("final alpha_d: "+alpha_d+", final bound: "+D_cN);
 
-
-
+	// submodularity bound
+	var F_cN = HfG/alpha_s;
 
 
 
@@ -1971,10 +2003,12 @@ function calculateApproxFactorsBtnFcn(){
 	P_cN = Math.round(10000000*P_cN)/10000000;
 	G_cN = Math.round(10000000*G_cN)/10000000;
 	D_cN = Math.round(10000000*D_cN)/10000000;
+	F_cN = Math.round(10000000*F_cN)/10000000;
+	
 	
 	consolePrint("Approximation Factors calculated for this Mission Space configuration with N = "+N+", R = "+senRange+", and d = "+sensingDecayFactor+" are as follows:");
 	consolePrint("Theoretical:- "+Th_N+", Total Cur.:- "+T_cN+", Elemental Cur.:- "+E_cN+".");
-	consolePrint("Partial Cur.:- "+P_cN+", Greedy Cur.:- "+G_cN+", Extended greedy based.:- "+D_cN+".");
+	consolePrint("Partial Cur.:- "+P_cN+", Greedy Cur.:- "+G_cN+", Ext. greedy Cur.:- "+D_cN+", Submod. Bound:- "+F_cN+".");
 	
 
 
@@ -2005,6 +2039,8 @@ function solveCentralizedGreedyBtnFcn(){
 	// need to ad one agent by one agent,
 	// each agent should take the best candidate position ( to maximize H(s) - global ) remaining
 	submodularityMode = 3; 
+
+	savedParameters[4] = 0; // for submdularity based bound : \alpha_s
 	
 }
 
@@ -2056,6 +2092,22 @@ function iterationOfCentralizedGreedy(){
 	print("H: "+HVal);
 	print("Sum: "+sumVal+", bound: "+(1/(1+(sumVal/HVal))));
 	// data dependent bound
+
+
+	// submodularity based bound
+	if(chosenCandidateIndexes.length == 0){
+		var costAt0Array = [...costArray];
+		costAt0Array.sort(function(a,b){return b-a});
+		var alpha_s = 0;
+		for(var j = 0; j<savedParticles.length; j++){
+			print(costAt0Array[j]);
+			alpha_s = alpha_s + costAt0Array[j]; // summing highest costs
+		}
+		savedParameters[4] = alpha_s; //saving for later: to use in sketch.js at thee end
+	}
+	// end submodularity based vound
+
+
 
 
 
