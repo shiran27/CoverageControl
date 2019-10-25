@@ -1844,7 +1844,8 @@ function calculateApproxFactorsBtnFcn(){
 	// print(savedParameters[3].indexOf(savedParameters[3].reduce(function(a, b){return Math.max(a, b);})))
 	
 	var alpha_g = savedParameters[3].reduce(function(a, b){return Math.max(a, b);});
-	var G_cN = (1-alpha_g)*(1-(1/N));
+	////var G_cN = (1-alpha_g)*(1-(1/N));
+	var G_cN = 1-alpha_g*(1-(1/N));
 	// end greedy curvature calculation
 
 
@@ -2011,6 +2012,7 @@ function calculateApproxFactorsBtnFcn(){
 	consolePrint("Partial Cur.:- "+P_cN+", Greedy Cur.:- "+G_cN+", Ext. greedy Cur.:- "+D_cN+", Submod. Based:- "+F_cN+".");
 	
 
+	print("BF: "+Th_N+","+T_cN+","+E_cN+","+G_cN+","+P_cN+","+D_cN+","+F_cN);
 
 	// relaod prevously saved particle shadows
 	particleShadows = savedParticles;

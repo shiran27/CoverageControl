@@ -1484,7 +1484,8 @@ function draw() {
             var approxFactor = 1-math.pow(1-(1/savedParticles.length),savedParticles.length);//1-(1-1/N)^N)
             if(approxFactor<0){approxFactor=0;}
             var approxFactor2 = savedParameters[3].reduce(function(a, b){return Math.max(a, b);});
-            approxFactor2 = (1-approxFactor2)*(1-(1/savedParticles.length));
+            //approxFactor2 = (1-approxFactor2)*(1-(1/savedParticles.length));
+            approxFactor2 = 1-approxFactor2*(1-(1/savedParticles.length));
             var approxFactor3 = globalObjective()/savedParameters[4];
             consolePrint("Solving Using Centralized - General Greedy Algorithm: Finished after "+savedParameters[2]+" computations.");
             consolePrint("Performance Bounds : Theo. :- "+approxFactor.toFixed(7)+", Greedy Curv. :- "+approxFactor2.toFixed(7)+", Submod. Based :- "+approxFactor3.toFixed(7)+".");
