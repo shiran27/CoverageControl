@@ -1765,6 +1765,7 @@ function calculateApproxFactorsBtnFcn(){
 		removeAgent(); // remove agent
 	}
 	var chosenCandidateIndex = costArray.indexOf(costArray.reduce(function(a, b){return Math.max(a, b);}));
+	// var chosenCandidateIndex = costArray.indexOf(costArray.reduce(function(a, b){return Math.min(a, b);}));
 	var solutionPoint = submodularityCandidates[chosenCandidateIndex];
 	addAgentToPoint(solutionPoint.x,solutionPoint.y);
 	chosenCandidateIndexes.push(chosenCandidateIndex);
@@ -1886,6 +1887,9 @@ function calculateApproxFactorsBtnFcn(){
 			} 
 
 		}
+
+		// print("test iteration:"+i);
+		// print(costArray);
 
 
 		// submodularity bound
