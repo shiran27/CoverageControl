@@ -2011,12 +2011,17 @@ function calculateApproxFactorsBtnFcn(){
 	F_cN = Math.round(10000000*F_cN)/10000000;
 	
 	
+
+
+	H_cN = calculateExtGreedyBasedApproxFactors(N);
+
 	consolePrint("Approximation Factors calculated for this Mission Space configuration with N = "+N+", R = "+senRange+", and d = "+sensingDecayFactor+" are as follows:");
-	consolePrint("Theoretical:- "+Th_N+", Total Cur.:- "+T_cN+", Elemental Cur.:- "+E_cN+".");
+	consolePrint("Theoretical:- "+Th_N+", Total Cur.:- "+T_cN+", Elemental Cur.:- "+E_cN+", NEW GREEDY Cur.:- "+H_cN+".");
 	consolePrint("Partial Cur.:- "+P_cN+", Greedy Cur.:- "+G_cN+", Ext. greedy Cur.:- "+D_cN+", Submod. Based:- "+F_cN+".");
 	
 
-	print("BF: "+Th_N+","+T_cN+","+E_cN+","+G_cN+","+P_cN+","+D_cN+","+F_cN);
+	// print("All Bounds: "+Th_N+","+T_cN+","+E_cN+","+G_cN+","+P_cN+","+D_cN+","+F_cN+","+H_cN); // I changed this line at NOtre Dame
+	print("All Bounds: "+Th_N+","+T_cN+","+E_cN+","+G_cN+","+P_cN+","+F_cN+","+D_cN+","+H_cN);
 
 	// relaod prevously saved particle shadows
 	particleShadows = savedParticles;
@@ -2024,6 +2029,210 @@ function calculateApproxFactorsBtnFcn(){
 
 }
 // end appproximation factors
+
+
+
+
+
+
+
+
+
+
+
+//// Generalized extended greedy curvature based bounds (approximation factors)
+function calculateExtGreedyBasedApproxFactors(N){
+	
+	//// savedParticles = particleShadows;
+	particleShadows = []; particles = [];
+
+	// chosen candidate indexes
+	savedParameters[0] = []; // already chosen candidates (i.e., Z^i, i=1,2,...)
+	savedParameters[1] = 0; // length of current particle shadows
+	savedParameters[2] = 0; // dummy for now
+
+	var M = submodularityCandidates.length;
+	////var N = savedParticles.length;
+	var m = Math.floor(M/N); // m+1 will be the length of g and f arrays
+
+	print("M="+M+"; N="+N+"; m="+m)
+
+	var beta_f = 1-Math.pow(1-(1/N),N);// theoretical approx factor
+	var f_Greedy; // greedy solution value
+
+	var fArray = [0]; //f(Z^i) at i = 0, N, 2N, ... , mN and i = M
+	var gArray = [];  //g(Z^i), i.e., max_Y sum_y \Delta H(y|Z^i) at i = 0, N, 2N, ... , mN and i=M-1
+	var boundArray = [[0],[beta_f]]; // bound array starts with the bound that can tell based on 0-iterations, which is the fundamental bound
+
+	for(var i = 1; i<=M; i++){ // i is the greedy iteration number, which goes from 1 to M
+		
+		// Start - Storing marginal gain falues of remaining candidates
+		var chosenCandidateIndexes = savedParameters[0]; // already chosen candidates
+		var costArray = []; // marginal gain values
+		for(var j = 0; j<M; j++){// scanning candidates
+			
+			if(chosenCandidateIndexes.includes(j)){// already chosen in a previous iteration
+				costArray[j] = 0; // will disencourage chosing this point
+			}else{
+				addAgentToPoint(submodularityCandidates[j].x,submodularityCandidates[j].y);
+				// marginal gain is equal to the local objective function value
+				costArray[j] = Math.round(particleShadows[particleShadows.length-1].localObjectiveFunction()*1000)/1000;
+				removeAgent(); // remove last element
+			} 
+
+		}
+		// print("test iteration:"+i);
+		// print(costArray);
+		// End - Storing marginal gain falues of remaining candidates
+
+
+		// Start - Filling g(Z^i) array at iterations i+1, where i = 0,N,2N,3N,...,mN
+		if((i-1)%N==0){ // activates when iterations 
+			var costAt0Array = [...costArray];
+			costAt0Array.sort(function(a,b){return b-a});
+			var sumVal = 0;
+			for(var j = 0; j<N; j++){
+				//print(costAt0Array[j]);
+				sumVal = sumVal + costAt0Array[j]; // summing highest costs
+			}
+			gArray.push(sumVal);
+		}
+		// End - filling g(Z^i)
+		
+
+		// Start - Executing the greedy step
+		var chosenCandidateIndex = costArray.indexOf(costArray.reduce(function(a, b){return Math.max(a, b);}));
+		var solutionPoint = submodularityCandidates[chosenCandidateIndex];
+
+		addAgentToPoint(solutionPoint.x,solutionPoint.y);
+		chosenCandidateIndexes.push(chosenCandidateIndex);
+		savedParameters[0] = chosenCandidateIndexes;
+		savedParameters[1] = savedParameters[1]+1;
+		// End - executing the greedy step
+
+
+		// Start - Filling f(Z^i) array at iterations i where i = N,2N,3N,...,mN
+		if(i%N==0){
+			var f_Z_i = globalObjective(); // global objective is the f(Z^i) value
+			fArray.push(f_Z_i); 
+			if(i==N){
+				f_Greedy = f_Z_i; 
+			}
+		}
+		// End - filling f(Z^i) array
+
+
+		// Start - Computing bounds that can be generated at greedy iteration i
+		if((i-1)%N==0 && i>1){// i=1 case is handled when i=N+1
+
+			if(i==(N+1)){
+				var f_Z_i = fArray[fArray.length-2]; // this is the first element in fArray, thus, should be 0
+				var g_Z_i = gArray[gArray.length-2]; // this is the first elemtn in gArray, loaded in the first iteration
+				var boundVal = f_Greedy/(f_Z_i+g_Z_i);
+				boundVal = Math.round(10000000*boundVal)/10000000;
+				boundArray[0].push(1)
+				boundArray[1].push(boundVal); // bound found in the first greedy iteration	
+			}
+
+			var f_Z_i = fArray[fArray.length-1];
+			var g_Z_i = gArray[gArray.length-1];
+			var boundVal = f_Greedy/(f_Z_i+g_Z_i);
+			boundVal = Math.round(10000000*boundVal)/10000000;
+			boundArray[0].push(i); 
+			boundArray[1].push(boundVal); // bound found in the i-th greedy iteration	
+		}
+
+		if(i%N==0){
+			var f_Z_i = fArray[fArray.length-1];
+			var f_Z_i_old = fArray[fArray.length-2];
+			var g_Z_i = (f_Z_i-f_Z_i_old)/beta_f;
+			
+			var boundVal = f_Greedy/(f_Z_i_old+g_Z_i);
+			boundVal = Math.round(10000000*boundVal)/10000000
+			boundArray[0].push(i); 
+			boundArray[1].push(boundVal); // bound found in the i-th greedy iteration	
+		}
+
+		if(i==M){
+			var f_X = globalObjective(); 
+			var boundVal = f_Greedy/f_X;
+			boundVal = Math.round(10000000*boundVal)/10000000;
+			boundArray[0].push(i); 
+			boundArray[1].push(boundVal); // bound found in the i-th (now the last) possible greedy iteration	
+		}
+		// End - Computing bounds that can be generated at greedy iteration i
+
+	}
+
+
+	// Re-formatting the bounds
+	var tempInd = boundArray[0][1]; // swap the elements so that bounds are in an order
+	boundArray[0][1] = boundArray[0][2];
+	boundArray[0][2] = tempInd; 
+	var tempBound = boundArray[1][1]; // swap the elements so that bounds are in an order
+	boundArray[1][1] = boundArray[1][2];
+	boundArray[1][2] = tempBound; 
+	
+	var maxBoundValue = 0;
+	var maxBoundIteration = 0;
+	for(var k=0; k<boundArray[1].length; k++){
+		if(boundArray[1][k]>maxBoundValue){
+			maxBoundValue = boundArray[1][k];
+			maxBoundIteration = boundArray[0][k];
+		}
+	}
+
+	// print("fArray:")
+	// print(fArray)
+
+	// print("gArray:")
+	// print(gArray)
+	
+	print("ExtGreedy:maxBound");
+	print(maxBoundValue);
+
+	print("ExtGreedy:maxBoundIteration");
+	print(maxBoundIteration);
+
+
+	print("ExtGreedy:IndexAndBoundArrays:");
+	print(boundArray[0]);
+	print(boundArray[1])
+
+
+	return maxBoundValue;
+
+	// relaod prevously saved particle shadows
+	//// particleShadows = savedParticles;
+
+}
+//// End-Generalized extended greedy curvature based bounds (approximation factors)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
