@@ -2016,8 +2016,8 @@ function calculateApproxFactorsBtnFcn(){
 	H_cN = calculateExtGreedyBasedApproxFactors(N);
 
 	consolePrint("Approximation Factors calculated for this Mission Space configuration with N = "+N+", R = "+senRange+", and d = "+sensingDecayFactor+" are as follows:");
-	consolePrint("Theoretical:- "+Th_N+", Total Cur.:- "+T_cN+", Elemental Cur.:- "+E_cN+", NEW GREEDY Cur.:- "+H_cN+".");
-	consolePrint("Partial Cur.:- "+P_cN+", Greedy Cur.:- "+G_cN+", Ext. greedy Cur.:- "+D_cN+", Submod. Based:- "+F_cN+".");
+	consolePrint("Theoretical:- "+Th_N+", Total Cur.:- "+T_cN+", Elemental Cur.:- "+E_cN+", Ext. greedy (new):- "+H_cN+".");
+	consolePrint("Partial Cur.:- "+P_cN+", Greedy Cur.:- "+G_cN+", Ext. greedy (old):- "+D_cN+", Submod. Based:- "+F_cN+".");
 	
 
 	// print("All Bounds: "+Th_N+","+T_cN+","+E_cN+","+G_cN+","+P_cN+","+D_cN+","+F_cN+","+H_cN); // I changed this line at NOtre Dame
